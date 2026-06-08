@@ -6,7 +6,7 @@ app.use(cors());
 app.use(express.json());
 
 const SUPABASE_URL = 'https://wzjhwtijdjgfqniuszhy.supabase.co';
-const SUPABASE_KEY = 'SUPABASE_ANON_KEYINI_YAZ';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6amh3dGlqZGpnZnFuaXVzemh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MTA5NzMsImV4cCI6MjA5NjQ4Njk3M30.pz2RHRtcHWw7IKo0l36hAmYaHd-uS1m0fCESQAeqqUo';
 
 async function db(method, table, body, query) {
   const url = SUPABASE_URL + '/rest/v1/' + table + (query || '');
