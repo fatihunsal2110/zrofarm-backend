@@ -6,7 +6,7 @@ app.use(cors());
 app.use(express.json());
 
 const SUPABASE_URL = 'https://wzjhwtijdjgfqniuszhy.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6amh3dGlqZGpnZnFuaXVzemh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MTA5NzMsImV4cCI6MjA5NjQ4Njk3M30.pz2RHRtcHWw7IKo0l36hAmYaHd-uS1m0fCESQAeqqUo';
+const SUPABASE_KEY = 'SUPABASE_ANON_KEYINI_YAZ';
 
 async function db(method, table, body, query) {
   const url = SUPABASE_URL + '/rest/v1/' + table + (query || '');
@@ -117,6 +117,15 @@ app.get('/api/referrals/:user_id', async (req, res) => {
     const refCode = 'USR_' + req.params.user_id;
     const data = await db('GET', 'users', null, '?referred_by=eq.' + refCode);
     res.json({ success: true, referrals: Array.isArray(data) ? data : [] });
+  } catch(err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+app.get('/api/leaderboard', async (req, res) => {
+  try {
+    const data = await db('GET', 'users', null, '?order=coins.desc&limit=50&select=id,first_name,username,coins,ref_count');
+    res.json({ success: true, leaderboard: Array.isArray(data) ? data : [] });
   } catch(err) {
     res.status(500).json({ success: false, error: err.message });
   }
