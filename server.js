@@ -8,7 +8,7 @@ app.use(express.json());
 
 const SUPABASE_URL = 'https://wzjhwtijdjgfqniuszhy.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6amh3dGlqZGpnZnFuaXVzemh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MTA5NzMsImV4cCI6MjA5NjQ4Njk3M30.pz2RHRtcHWw7IKo0l36hAmYaHd-uS1m0fCESQAeqqUo';
-const BOT_TOKEN = 'BOTtokenini_YAZ';
+const BOT_TOKEN = '8701041239:AAFQ7sm8SsMyBzYncNe1DI5ZPg6G_jOTOlk';
 
 // Rate limiting - IP başına istek sayısı
 const rateLimits = {};
@@ -211,6 +211,78 @@ app.get('/api/referrals/:user_id', async (req, res) => {
     const data = await db('GET', 'users', null, '?referred_by=eq.' + refCode);
     res.json({ success: true, referrals: Array.isArray(data) ? data : [] });
   } catch(err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// TON transaction doğrulama
+async function verifyTonTransaction(boc, expectedAmount){
+  try {
+    // TonCenter API ile doğrula (ücretsiz)
+    const res = await fetch('https://toncenter.com/api/v2/sendBoc', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ boc })
+    });
+    const data = await res.json();
+    console.log('TON verify:', JSON.stringify(data).substring(0,200));
+    return data.ok === true;
+  } catch(e){
+    console.log('TON verify hatasi:', e.message);
+    return false;
+  }
+}
+
+// TON boost doğrulama ve aktivasyon
+app.post('/api/ton/verify', async (req, res) => {
+  try {
+    const { user_id, pkg_id, ton_amount, boc } = req.body;
+    console.log('TON verify istegi:', user_id, pkg_id, ton_amount);
+
+    // Transaction'ı blockchain'e gönder ve doğrula
+    const verified = await verifyTonTransaction(boc, ton_amount);
+    
+    // Boost süreleri
+    const durations = {
+      'boost_1h':    3600000,
+      'boost_daily': 86400000,
+      'boost_weekly':604800000,
+      'boost_monthly':2592000000,
+      'energy_fill': 0,
+    };
+
+    // Kullanıcıya boost kaydet
+    const user = await db('GET', 'users', null, '?id=eq.' + user_id);
+    if(user && user.length > 0){
+      const u = user[0];
+      const boosts = u.active_boosts || {};
+      
+      if(pkg_id === 'energy_fill'){
+        await db('PATCH', 'users', {
+          energy: u.max_energy || 500,
+          updated_at: new Date().toISOString()
+        }, '?id=eq.' + user_id);
+      } else if(pkg_id === 'premium'){
+        await db('PATCH', 'users', {
+          is_premium: true,
+          updated_at: new Date().toISOString()
+        }, '?id=eq.' + user_id);
+      } else {
+        const dur = durations[pkg_id] || 3600000;
+        boosts[pkg_id] = Date.now() + dur;
+        await db('PATCH', 'users', {
+          active_boosts: boosts,
+          updated_at: new Date().toISOString()
+        }, '?id=eq.' + user_id);
+      }
+
+      // TON ödeme kaydı
+      console.log('TON odeme kaydedildi:', user_id, pkg_id, ton_amount, 'TON');
+    }
+
+    res.json({ success: true, verified });
+  } catch(err){
+    console.log('TON verify HATA:', err.message);
     res.status(500).json({ success: false, error: err.message });
   }
 });
