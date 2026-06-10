@@ -8,7 +8,7 @@ app.use(express.json());
 
 const SUPABASE_URL = 'https://wzjhwtijdjgfqniuszhy.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6amh3dGlqZGpnZnFuaXVzemh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MTA5NzMsImV4cCI6MjA5NjQ4Njk3M30.pz2RHRtcHWw7IKo0l36hAmYaHd-uS1m0fCESQAeqqUo';
-const BOT_TOKEN = '8701041239:AAFQ7sm8SsMyBzYncNe1DI5ZPg6G_jOTOlk';
+const BOT_TOKEN = '7958391957:AAG45DUkp6s69qt0xghDWUIBQ4-tiRNofM0';
 
 // Rate limiting - IP başına istek sayısı
 const rateLimits = {};
@@ -347,6 +347,16 @@ app.post('/api/notify/energy', async (req, res) => {
 app.get('/api/leaderboard', async (req, res) => {
   try {
     const data = await db('GET', 'users', null, '?order=coins.desc&limit=50&select=id,first_name,username,coins,ref_count');
+    res.json({ success: true, leaderboard: Array.isArray(data) ? data : [] });
+  } catch(err) {
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
+
+// Referral yarışması sıralaması
+app.get('/api/leaderboard/referrals', async (req, res) => {
+  try {
+    const data = await db('GET', 'users', null, '?order=ref_count.desc&limit=10&select=id,first_name,username,ref_count,coins');
     res.json({ success: true, leaderboard: Array.isArray(data) ? data : [] });
   } catch(err) {
     res.status(500).json({ success: false, error: err.message });
