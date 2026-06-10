@@ -41,8 +41,7 @@ function verifyTelegramData(initData){
     const dataCheckString = Array.from(params.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([k,v]) => k+'='+v)
-      .join('
-');
+      .join('\n');
     const secretKey = crypto.createHmac('sha256', 'WebAppData').update(BOT_TOKEN).digest();
     const expectedHash = crypto.createHmac('sha256', secretKey).update(dataCheckString).digest('hex');
     return hash === expectedHash;
@@ -291,7 +290,7 @@ app.post('/api/ton/verify', async (req, res) => {
 async function sendEnergyNotification(userId, firstName, lang){
   try {
     const messages = {
-      tr: '⚡ Enerjin doldu! ZRo Farm'a geri dön ve kazanmaya devam et!',
+      tr: '⚡ Enerjin doldu! ZRo Farma geri don ve kazanmaya devam et!',
       en: '⚡ Your energy is full! Come back to ZRo Farm and keep mining!',
       ru: '⚡ Энергия полна! Вернись в ZRo Farm и продолжай добычу!',
       zh: '⚡ 你的能量已满！回到ZRo Farm继续挖矿！',
