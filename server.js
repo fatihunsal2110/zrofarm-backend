@@ -1,4 +1,4 @@
-const express = require('express');
+sconst express = require('express');
 const cors = require('cors');
 const crypto = require('crypto');
 
@@ -8,7 +8,7 @@ app.use(express.json());
 
 const SUPABASE_URL = 'https://wzjhwtijdjgfqniuszhy.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind6amh3dGlqZGpnZnFuaXVzemh5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODA5MTA5NzMsImV4cCI6MjA5NjQ4Njk3M30.pz2RHRtcHWw7IKo0l36hAmYaHd-uS1m0fCESQAeqqUo';
-const BOT_TOKEN = '7958391957:AAG45DUkp6s69qt0xghDWUIBQ4-tiRNofM0';
+const BOT_TOKEN = '8701041239:AAFQ7sm8SsMyBzYncNe1DI5ZPg6G_jOTOlk';
 
 // Rate limiting - IP başına istek sayısı
 const rateLimits = {};
@@ -156,7 +156,7 @@ app.post('/api/save', async (req, res) => {
       return res.status(429).json({ success: false, error: 'Too many requests' });
     }
 
-    const { user_id, coins, energy, tap_power, businesses, ref_count, ref_earned, init_data } = req.body;
+    const { user_id, coins, energy, tap_power, businesses, upgrades, max_energy, regen_mult, active_boosts, is_premium, ref_count, ref_earned, init_data } = req.body;
     console.log('Save istegi:', user_id, 'coins:', coins);
 
     // Mevcut kullanıcı verisini al
